@@ -12,7 +12,13 @@
 #ifndef HW1SHELL_H
 #define HW1SHELL_H
 
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <unistd.h>
 #include <sys/types.h>
+#include <sys/wait.h>
+#include <errno.h>
 
 /* Maximum limits */
 #define CMD_MAX_LENGTH 1024   /* Maximum command line length */
@@ -29,14 +35,7 @@ typedef struct {
 extern BackgroundJob bgJobs[MAX_BG_JOBS];
 extern int activeJobs;
 
-/* Function prototypes */
 
-/*
- * executeCommand - Execute an external command (foreground or background)
- * args: NULL-terminated array of command arguments
- * isBackground: 1 if background (&), 0 if foreground
- * originalCmd: original command string for job tracking
- */
 void executeCommand(char *args[], int isBackground, char *originalCmd);
 
 /*

@@ -1,21 +1,6 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <unistd.h>
-#include <sys/types.h>
-#include <sys/wait.h>
-#include <errno.h>
 #include "hw1shell.h"
 
-#define CMD_MAX_LENGTH 1024
-#define ARG_MAX_COUNT 64
-#define MAX_BG_JOBS 4
-
-typedef struct {
-    pid_t pid;
-    char command[CMD_MAX_LENGTH];
-} BackgroundJob;
-
+/* Global background job tracking */
 BackgroundJob bgJobs[MAX_BG_JOBS];
 int activeJobs = 0;
 
