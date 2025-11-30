@@ -1,9 +1,5 @@
-# Makefile for hw1shell
-# Simple Unix shell implementation
-#
-# Usage:
 #   make          - Build hw1shell executable
-#   make clean    - Remove executables and object files
+#   make clean    - Remove executables
 #   make rebuild  - Clean and rebuild
 
 CC = gcc
