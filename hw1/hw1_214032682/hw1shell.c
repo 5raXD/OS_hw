@@ -114,6 +114,7 @@ int main() {
         if (argCount > 0 && strcmp(args[argCount - 1], "&") == 0) {
             isBackground = 1;
             args[argCount - 1] = NULL;  // Remove "&" from arguments
+                argCount--;                 // CHANGED: decrement argCount after removing '&'
             char *amp = strrchr(inputCopy, '&');
             if (amp) *amp = '\0';
             while (strlen(inputCopy) > 0 && 
@@ -129,10 +130,12 @@ int main() {
             cleanupOnExit();
             exit(EXIT_SUCCESS);
         } else if (strcmp(args[0], "cd") == 0) {
-            if (argCount < 2) {
+            if (argCount != 2) {
                 printf("hw1shell: invalid command\n");
             } else if (chdir(args[1]) != 0) {
-                printf("hw1shell: chdir failed, errno is %d\n", errno);
+                if (errno != ENOENT) {
+                    printf("hw1shell: chdir failed, errno is %d\n", errno);
+                }
                 printf("hw1shell: invalid command\n");
             }
         } else if (strcmp(args[0], "jobs") == 0) {
