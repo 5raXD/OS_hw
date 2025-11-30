@@ -39,7 +39,6 @@ void executeCommand(char *args[], int isBackground, char *originalCmd) {
     }
 }
 
-/* CHANGED: Removed header "PID\tCommand\n" - jobs output should only show pid\tcommand lines */
 void printJobs() {
     for (int i = 0; i < activeJobs; i++) {
         printf("%d\t%s\n", bgJobs[i].pid, bgJobs[i].command);
@@ -68,7 +67,7 @@ void reapFinishedJobs() {
 void cleanupOnExit() {
     int status;
     while (waitpid(-1, &status, 0) > 0) {
-        // Wait for all child processes to finish
+        // Wait for all child to finish
     }
 }
 
@@ -76,16 +75,14 @@ int main() {
     while (1) {
         reapFinishedJobs();
         char input[CMD_MAX_LENGTH];
-        char inputCopy[CMD_MAX_LENGTH];  /* for storing original command */
+        char inputCopy[CMD_MAX_LENGTH];
         char *args[ARG_MAX_COUNT];
-
-        // Display the shell prompt
         printf("hw1shell$ ");
         fflush(stdout);
 
         // Read user input
         if (fgets(input, sizeof(input), stdin) == NULL) {
-            printf("\n");  /* EOF on Ctrl-D */
+            printf("\n");  // EOF on Ctrl-D
             cleanupOnExit();
             exit(EXIT_SUCCESS);
         }
@@ -94,14 +91,10 @@ int main() {
         input[strcspn(input, "\n")] = '\0';
 
         if (strlen(input) == 0) {
-            continue;  // Skip empty commands
+            continue;  //empty commands
         }
-
-        /* save original command before tokenizing */
         strncpy(inputCopy, input, CMD_MAX_LENGTH - 1);
         inputCopy[CMD_MAX_LENGTH - 1] = '\0';
-
-        // Tokenize input into arguments
         char *token = strtok(input, " ");
         int argCount = 0;
 
@@ -109,10 +102,8 @@ int main() {
             args[argCount++] = token;
             token = strtok(NULL, " ");
         }
-        args[argCount] = NULL;  // Null-terminate the arguments array
-
+        args[argCount] = NULL;  // Null-terminate
         if (argCount == 0) continue;
-
         if (strcmp(args[0], "&") == 0) {
             printf("hw1shell: invalid command\n");
             continue;
@@ -123,11 +114,8 @@ int main() {
         if (argCount > 0 && strcmp(args[argCount - 1], "&") == 0) {
             isBackground = 1;
             args[argCount - 1] = NULL;  // Remove "&" from arguments
-            /* remove & from stored command */
             char *amp = strrchr(inputCopy, '&');
             if (amp) *amp = '\0';
-            /* trim trailing space */
-            /* CHANGED: Also trim tabs, not just spaces */
             while (strlen(inputCopy) > 0 && 
                    (inputCopy[strlen(inputCopy)-1] == ' ' || 
                     inputCopy[strlen(inputCopy)-1] == '\t')) {
@@ -136,13 +124,11 @@ int main() {
         }
 
         reapFinishedJobs();
-
         // Internal commands
         if (strcmp(args[0], "exit") == 0) {
             cleanupOnExit();
             exit(EXIT_SUCCESS);
         } else if (strcmp(args[0], "cd") == 0) {
-            /* CHANGED: Added check for argCount < 2 to prevent accessing invalid args[1] */
             if (argCount < 2) {
                 printf("hw1shell: invalid command\n");
             } else if (chdir(args[1]) != 0) {
