@@ -12,7 +12,7 @@ void executeCommand(char *args[], int isBackground, char *originalCmd) {
     } else if (pid == 0) {
         // Child process
         if (execvp(args[0], args) == -1) {
-            fprintf(stderr, "hw1shell: execvp failed, errno is %d\n", errno);
+            fprintf(stderr, "hw1shell: invalid command\n");
             exit(EXIT_FAILURE);
         }
     } else {
