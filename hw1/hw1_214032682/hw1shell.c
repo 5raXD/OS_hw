@@ -8,32 +8,31 @@ void executeCommand(char *args[], int isBackground, char *originalCmd) {
     pid_t pid = fork();
 
     if (pid == -1) {
-        printf("hw1shell: fork failed, errno is %d\n", errno);
+        fprintf(stderr,"hw1shell: %s failed, errno is %d\n", "fork", errno);
     } else if (pid == 0) {
         // Child process
         if (execvp(args[0], args) == -1) {
-            if (errno != 2) {
-                printf("hw1shell: execvp failed, errno is %d\n", errno);
-            }
-            printf("hw1shell: invalid command\n");
+            fprintf(stderr, "hw1shell: execvp failed, errno is %d\n", errno);
             exit(EXIT_FAILURE);
         }
     } else {
         // Parent process
         if (isBackground) {
             if (activeJobs < MAX_BG_JOBS) {
-                printf("hw1shell: pid %d started\n", pid);
+                printf("[Background job started] PID: %d\n", pid);
                 bgJobs[activeJobs].pid = pid;
                 strncpy(bgJobs[activeJobs].command, originalCmd, CMD_MAX_LENGTH - 1);
                 bgJobs[activeJobs].command[CMD_MAX_LENGTH - 1] = '\0';
                 activeJobs++;
             } else {
-                printf("hw1shell: too many background commands running\n");
-                waitpid(pid, NULL, 0);  /* kill the forked process */
+                fprintf(stderr,"hw1shell: maximum background jobs reached\n");
+                waitpid(pid, NULL, 0);
             }
         } else {
-            if (waitpid(pid, NULL, 0) == -1) {
-                printf("hw1shell: waitpid failed, errno is %d\n", errno);
+            int status;
+            pid_t result = waitpid(pid, &status, 0);
+            if (result == -1) {
+                fprintf(stderr,"hw1shell: %s failed, errno is %d\n", "waitpid", errno);
             }
         }
     }
@@ -50,7 +49,7 @@ void reapFinishedJobs() {
     pid_t pid;
 
     while ((pid = waitpid(-1, &status, WNOHANG)) > 0) {
-        printf("hw1shell: pid %d finished\n", pid);
+        printf("[Background job finished] PID: %d\n", pid);
 
         for (int i = 0; i < activeJobs; i++) {
             if (bgJobs[i].pid == pid) {
@@ -130,13 +129,12 @@ int main() {
             cleanupOnExit();
             exit(EXIT_SUCCESS);
         } else if (strcmp(args[0], "cd") == 0) {
-            if (argCount != 2) {
-                printf("hw1shell: invalid command\n");
-            } else if (chdir(args[1]) != 0) {
-                if (errno != ENOENT) {
-                    printf("hw1shell: chdir failed, errno is %d\n", errno);
+            if (args[1] == NULL || args[2] != NULL) {
+                fprintf(stderr, "hw1shell: invalid command\n");
+            } else {
+                if (chdir(args[1]) == -1) {
+                    fprintf(stderr, "hw1shell: %s failed, errno is %d\n", "chdir", errno);
                 }
-                printf("hw1shell: invalid command\n");
             }
         } else if (strcmp(args[0], "jobs") == 0) {
             printJobs();
