@@ -1,4 +1,5 @@
 #include "hw1shell.h"
+BackgroundJob bgJobs[MAX_BG_JOBS];
 int activeJobs = 0;
 void executeCommand(char *args[], int isBackground, char *originalCmd) {
     pid_t pid = fork();

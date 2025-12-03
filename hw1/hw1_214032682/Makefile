@@ -1,15 +1,19 @@
 CC = gcc
-CFLAGS = -std=c11 -Wall -Wextra -O2 -pedantic
+CFLAGS = -Wall -g
 TARGET = hw1shell
-SRC = hw1shell.c
-HDR = hw1shell.h
-OBJ = hw1shell.os
+SRCS = hw1shell.c
+OBJS = $(SRCS:.c=.o)
 all: $(TARGET)
-$(TARGET): $(OBJ)
-	$(CC) $(CFLAGS) -o $@ $^
-$(OBJ): $(SRC) $(HDR)
-	$(CC) $(CFLAGS) -c -o $@ $(SRC)
+$(TARGET): $(OBJS)
+	$(CC) $(CFLAGS) -o $(TARGET) $(OBJS)
+%.o: %.c
+	$(CC) $(CFLAGS) -c $< -o $@
 clean:
-	rm -f $(TARGET) $(OBJ)
-rebuild: clean all
-.PHONY: all clean rebuild
+	rm -f $(OBJS) $(TARGET)
+.PHONY: all clean
+# i wanted to use this or equvelent but after reading more about makefiles i realized that this ver is not good
+# hw1shell: hw1shell.c
+# 	gcc -g hw1shell.c -o hw1shell
+# clean:
+# 	\rm hw1shell
+# all: hw1shel
