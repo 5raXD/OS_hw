@@ -1,7 +1,3 @@
-#   make          - Build hw1shell executable
-#   make clean    - Remove executables
-#   make rebuild  - Clean and rebuild
-
 CC = gcc
 CFLAGS = -std=c11 -Wall -Wextra -O2 -pedantic
 TARGET = hw1shell

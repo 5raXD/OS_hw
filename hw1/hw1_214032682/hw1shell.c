@@ -1,13 +1,9 @@
 #include "hw1shell.h"
-
-/* Global background job tracking */
-BackgroundJob bgJobs[MAX_BG_JOBS];
 int activeJobs = 0;
-
 void executeCommand(char *args[], int isBackground, char *originalCmd) {
     pid_t pid = fork();
 
-    if (pid == -1) {
+    if (pid == -1) {//i think fork filed i do not know if this happens for something else
         fprintf(stderr,"hw1shell: %s failed, errno is %d\n", "fork", errno);
     } else if (pid == 0) {
         // Child process
@@ -37,13 +33,11 @@ void executeCommand(char *args[], int isBackground, char *originalCmd) {
         }
     }
 }
-
 void printJobs() {
     for (int i = 0; i < activeJobs; i++) {
         printf("%d\t%s\n", bgJobs[i].pid, bgJobs[i].command);
     }
 }
-
 void reapFinishedJobs() {
     int status;
     pid_t pid;
@@ -62,14 +56,12 @@ void reapFinishedJobs() {
         }
     }
 }
-
 void cleanupOnExit() {
     int status;
     while (waitpid(-1, &status, 0) > 0) {
-        // Wait for all child to finish
+        // wait for all children
     }
 }
-
 int main() {
     while (1) {
         reapFinishedJobs();
@@ -81,16 +73,13 @@ int main() {
 
         // Read user input
         if (fgets(input, sizeof(input), stdin) == NULL) {
-            printf("\n");  // EOF on Ctrl-D
+            printf("\n");
             cleanupOnExit();
-            exit(EXIT_SUCCESS);
+            exit(EXIT_SUCCESS);//i should chesk if it is better to do break here to exit the while
         }
-
-        // Trim newline character
         input[strcspn(input, "\n")] = '\0';
-
         if (strlen(input) == 0) {
-            continue;  //empty commands
+            continue;  //empty
         }
         strncpy(inputCopy, input, CMD_MAX_LENGTH - 1);
         inputCopy[CMD_MAX_LENGTH - 1] = '\0';
@@ -101,7 +90,7 @@ int main() {
             args[argCount++] = token;
             token = strtok(NULL, " ");
         }
-        args[argCount] = NULL;  // Null-terminate
+        args[argCount] = NULL;  // Null
         if (argCount == 0) continue;
         if (strcmp(args[0], "&") == 0) {
             printf("hw1shell: invalid command\n");
