@@ -13,14 +13,15 @@ void executeCommand(char *args[], int isBackground, char *originalCmd) {
     } else {
         if (isBackground) { // Parent process
             if (activeJobs < MAX_BG_JOBS) {
-                printf("[Background job started] pid: %d\n", pid);
+                printf("hw1shell: pid: %d started\n", pid);
                 bgJobs[activeJobs].pid = pid;
                 strncpy(bgJobs[activeJobs].command, originalCmd, CMD_MAX_LENGTH - 1);
                 bgJobs[activeJobs].command[CMD_MAX_LENGTH - 1] = '\0';
                 activeJobs++;
             } else {
                 fprintf(stderr,"hw1shell: too many background commands running\n");
-                waitpid(pid, NULL, 0);
+                //waitpid(pid, NULL, 0);should wait before exit ???
+                return;
             }
         } else {
             int status;
@@ -40,7 +41,7 @@ void reapFinishedJobs() {
     int status;
     pid_t pid;
     while ((pid = waitpid(-1, &status, WNOHANG)) > 0) {
-        printf("[Background job finished] pid: %d\n", pid);
+        printf("hw1shell: pid: %d finished\n", pid);
 
         for (int i = 0; i < activeJobs; i++) {
             if (bgJobs[i].pid == pid) {
