@@ -2,18 +2,15 @@
 int activeJobs = 0;
 void executeCommand(char *args[], int isBackground, char *originalCmd) {
     pid_t pid = fork();
-
     if (pid == -1) {//i think fork filed i do not know if this happens for something else
         fprintf(stderr,"hw1shell: %s failed, errno is %d\n", "fork", errno);
-    } else if (pid == 0) {
-        // Child process
+    } else if (pid == 0) { // Child process
         if (execvp(args[0], args) == -1) {
             fprintf(stderr, "hw1shell: invalid command\n");
             exit(EXIT_FAILURE);
         }
     } else {
-        // Parent process
-        if (isBackground) {
+        if (isBackground) { // Parent process
             if (activeJobs < MAX_BG_JOBS) {
                 printf("[Background job started] pid: %d\n", pid);
                 bgJobs[activeJobs].pid = pid;
@@ -41,7 +38,6 @@ void printJobs() {
 void reapFinishedJobs() {
     int status;
     pid_t pid;
-
     while ((pid = waitpid(-1, &status, WNOHANG)) > 0) {
         printf("[Background job finished] pid: %d\n", pid);
 
@@ -58,8 +54,7 @@ void reapFinishedJobs() {
 }
 void cleanupOnExit() {
     int status;
-    while (waitpid(-1, &status, 0) > 0) {
-        // wait for all children
+    while (waitpid(-1, &status, 0) > 0) { // wait for all children
     }
 }
 int main() {
@@ -70,8 +65,6 @@ int main() {
         char *args[ARG_MAX_COUNT];
         printf("hw1shell$ ");
         fflush(stdout);
-
-        // Read user input
         if (fgets(input, sizeof(input), stdin) == NULL) {
             printf("\n");
             cleanupOnExit();
@@ -96,13 +89,11 @@ int main() {
             printf("hw1shell: invalid command\n");
             continue;
         }
-
-        // Check for background command
         int isBackground = 0;
-        if (argCount > 0 && strcmp(args[argCount - 1], "&") == 0) {
+        if (argCount > 0 && strcmp(args[argCount - 1], "&") == 0) { // if background
             isBackground = 1;
-            args[argCount - 1] = NULL;  // Remove "&" from arguments
-                argCount--;                 // CHANGED: decrement argCount after removing '&'
+            args[argCount - 1] = NULL;  // remove "&"
+                argCount--;
             char *amp = strrchr(inputCopy, '&');
             if (amp) *amp = '\0';
             while (strlen(inputCopy) > 0 && 
@@ -111,9 +102,7 @@ int main() {
                 inputCopy[strlen(inputCopy)-1] = '\0';
             }
         }
-
         reapFinishedJobs();
-        // Internal commands
         if (strcmp(args[0], "exit") == 0) {
             cleanupOnExit();
             exit(EXIT_SUCCESS);
